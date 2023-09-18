@@ -39,7 +39,8 @@ class Solution{
         return Object.values( this.products)
             .reduce( (acc,cur)=> acc + cur.total, 0);
     }
-    calc( type = "json"){
+    calc( type = "json", servingSize = "5 gram"){
+        servingSize = toMg(servingSize);
         if( this.totalMg !== this.total) throw new Error("[ERROR] Failed to calculate total correctly. Inconsistencies with percentages would occur.");
         let totals = {}
         type === 'string' ? console.log("Percent ratio of every Element and Product inside the solution:") : null;
@@ -58,17 +59,23 @@ class Solution{
         }
         switch(type){
             case "json":
-                console.log(JSON.stringify(totals));
-                break;
+                return Object.entries(totals).map( pair=>{
+                    return {
+                        name: pair[ 0],
+                        total: pair[ 1],
+                        pct: (( pair[ 1] / this.totalMg) * 100).toFixed(2)
+                    };
+                });
             case "string":
                 Object.entries(totals).forEach( element=>{
                     let percent = ((element[1]/this.totalMg)*100).toFixed(2)
-                    console.log(`Element ${element[0]} ${percent}% - ${element[1]}mg`)
+                    console.log(`${element[0]} ${percent}% - ${element[1]}mg\n`)
                     console.log(`\tCup: ${(toMg("1 cup")*(percent/100)).toFixed(2)}mg\t\tfl.oz: ${(toMg("1 fl.oz")*(percent/100)).toFixed(2)}mg`);
                     console.log(`\tTbsp: ${(toMg("1 tbsp")*(percent/100)).toFixed(2)}mg\t\tTsp: ${(toMg("1 tsp")*(percent/100)).toFixed(2)}mg`);
                     console.log(`\tstick: ${(toMg("1 stick")*(percent/100)).toFixed(2)}mg\t\tgram: ${(toMg("1 g")*(percent/100)).toFixed(2)}mg`);
+                    console.log(`\n\t\t\tServing Size: ${(servingSize*(percent/100)).toFixed(2)}mg\n`)
                 })
-                break;
+                return "huh?";
             case "php":
                 break;
         }
@@ -130,4 +137,6 @@ solution.addProduct(Test);
 
 //console.log(solution)
 //console.log(solution.constituents)
-solution.calc("string");
+let a = solution.calc("json", "8 gram");
+
+console.log(a);
